@@ -43,15 +43,6 @@ def train_model(rfm_data, n_clusters=4):
     
     return kmeans, scaler
 
-# if __name__ == "__main__":
-#     # Load and prepare data
-#     rfm_data = load_data('data/processed/cleaned_online_retail.csv')
-    
-#     # Train model
-#     model, scaler = train_model(rfm_data)
-    
-#     print("Model trained and saved successfully!")
-
 
 
 if __name__ == "__main__":
@@ -63,6 +54,18 @@ if __name__ == "__main__":
     
     # Now train
     rfm_data = load_data('data/processed/cleaned_online_retail.csv')
+
+
+
+    plt.figure(figsize=(8,6))
+    sns.heatmap(rfm_data.corr(), annot=True, cmap='coolwarm', fmt='.2f')
+    plt.title("RFM kintamųjų koreliacijų šiluminis žemėlapis")
+    plt.show()
+
+
+
+
+
     model, scaler = train_model(rfm_data)
 
     print("Model trained and saved successfully!")
