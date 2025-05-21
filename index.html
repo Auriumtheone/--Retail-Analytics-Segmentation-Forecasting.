@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pirkimų Įrašas</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .purchase-form { display: grid; grid-template-columns: 1fr 1fr; grid-gap: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        input, select { padding: 8px; margin-top: 5px; }
+        button { padding: 10px; margin-top: 15px; }
+        .submit-btn { background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+        .submit-btn:hover { background-color: #45a049; }
+        .logout-btn { background-color: #f44336; color: white; border: none; cursor: pointer; padding: 10px; margin-top: 20px; }
+        .logout-btn:hover { background-color: #d32f2f; }
+        .full-width { grid-column: span 2; }
+    </style>
+</head>
+<body>
+    <h1>Naujo pirkimo įvedimas</h1>
+    <form class="purchase-form" action="/add_purchase" method="post">
+        <div class="form-group">
+            <label for="invoice">Invoice:</label>
+            <input type="text" id="invoice" name="invoice" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="stock_code">StockCode:</label>
+            <input type="text" id="stock_code" name="stock_code" required>
+        </div>
+        
+        <div class="form-group full-width">
+            <label for="description">Description:</label>
+            <input type="text" id="description" name="description" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" name="quantity" min="1" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" min="0" step="0.01" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="customer_id">Customer_ID:</label>
+            <input type="text" id="customer_id" name="customer_id" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="country">Country:</label>
+            <input type="text" id="country" name="country" required>
+        </div>
+        
+        <div class="full-width">
+            <button type="submit" class="submit-btn">Įrašyti pirkimą</button>
+        </div>
+    </form>
+    
+    <a href="/logout" class="logout-btn">Atsijungti</a>
+</body>
+</html>
+
+
+
+
+<!-- Add this to your existing index.html or create segment.html -->
+<form method="POST" action="/segment">
+    <h3>Customer Segmentation</h3>
+    <input type="text" name="customer_id" placeholder="Enter Customer ID" required>
+    <button type="submit">Get Segment</button>
+</form>
+
+<!-- Simple output display -->
+{% if result %}
+<div class="result">
+    {{ result }}
+</div>
+{% endif %}
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Analytics Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .dashboard-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .panel { background: #f5f5f5; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .segment-display { font-size: 24px; padding: 15px; text-align: center; border-radius: 8px; margin-top: 10px; }
+        .chart-container { height: 300px; margin-top: 20px; }
+        button { padding: 10px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #45a049; }
+        input { padding: 8px; margin: 5px 0; width: 100%; }
+        .low-value { background: #ffcccc; }
+        .mid-value { background: #ffffcc; }
+        .high-value { background: #ccffcc; }
+        .champion { background: #99ccff; }
+    </style>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Customer Analytics Dashboard</h1>
+    
+    <div class="dashboard-container">
+        <div class="panel">
+            <h2>Customer Segmentation</h2>
+            <div>
+                <input type="text" id="customerIdInput" placeholder="Enter Customer ID">
+                <button onclick="predictSegment()">Analyze Customer</button>
+            </div>
+            
+            <div id="segmentResult" class="segment-display" style="display: none;">
+                <h3>Customer Segment: <span id="segmentName"></span></h3>
+                <p>Recency: <span id="recencyValue"></span> days</p>
+                <p>Frequency: <span id="frequencyValue"></span> purchases</p>
+                <p>Monetary: $<span id="monetaryValue"></span></p>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>Purchase Forecast</h2>
+            <div class="chart-container" id="forecastChart"></div>
+        </div>
+    </div>
+
+    <script>
+        function predictSegment() {
+            const customerId = document.getElementById('customerIdInput').value;
+            if (!customerId) {
+                alert('Please enter a Customer ID');
+                return;
+            }
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `customer_id=${customerId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                // Display segment results
+                const segmentResult = document.getElementById('segmentResult');
+                segmentResult.style.display = 'block';
+                segmentResult.className = 'segment-display ' + getSegmentClass(data.segment);
+                
+                document.getElementById('segmentName').textContent = data.segment_name;
+                document.getElementById('recencyValue').textContent = data.recency;
+                document.getElementById('frequencyValue').textContent = data.frequency;
+                document.getElementById('monetaryValue').textContent = data.monetary.toFixed(2);
+
+                // Update forecast chart (placeholder - you'll need to implement actual forecast)
+                updateForecastChart(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while processing your request');
+            });
+        }
+
+        function getSegmentClass(segment) {
+            const classes = ['low-value', 'mid-value', 'high-value', 'champion'];
+            return classes[segment] || 'low-value';
+        }
+
+        function updateForecastChart(data) {
+            // Placeholder data - replace with actual forecast from your model
+            const forecastData = {
+                x: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                y: [data.frequency * 0.8, data.frequency * 0.9, data.frequency * 1.1, data.frequency * 1.2],
+                type: 'bar',
+                name: 'Expected Purchases'
+            };
+
+            const layout = {
+                title: 'Next Month Purchase Forecast',
+                xaxis: { title: 'Week' },
+                yaxis: { title: 'Number of Purchases' }
+            };
+
+            Plotly.newPlot('forecastChart', [forecastData], layout);
+        }
+    </script>
+
+
+<!-- Add this anywhere in dashboard.html -->
+<div class="segment-section">
+    <h2>Customer Segmentation</h2>
+    <form method="POST" action="/segment">
+        <input type="text" name="customer_id" placeholder="Enter Customer ID" required>
+        <button type="submit">Analyze</button>
+    </form>
+
+    {% if segment_result %}
+    <div class="segment-result segment-{{ segment_result.segment_code }}">
+        <h3>Customer {{ segment_result.id }} is: {{ segment_result.segment }}</h3>
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+</div>
+
+<style>
+.segment-section {
+    margin: 20px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+.segment-result {
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 5px;
+}
+
+.segment-0 { background: #ffdddd; } /* Low-Value */
+.segment-1 { background: #fff3cd; } /* Mid-Value */
+.segment-2 { background: #d4edda; } /* High-Value */
+.segment-3 { background: #cce5ff; } /* Champion */
+
+.error {
+    color: #dc3545;
+    margin-top: 10px;
+}
+</style>
+
+
+
+
+
+
+</body>
+</html>

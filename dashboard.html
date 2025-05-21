@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Purchase Dashboard</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Purchase Data</h1>
+    <table>
+        <thead>
+            <tr>
+                {% for header in purchases[0].keys() %}
+                    <th>{{ header }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in purchases %}
+                <tr>
+                    {% for value in row.values() %}
+                        <td>{{ value }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+<!-- Add this anywhere in dashboard.html -->
+<div class="segment-section">
+    <h2>Customer Segmentation</h2>
+    <form method="POST" action="/segment">
+        <input type="text" name="customer_id" placeholder="Enter Customer ID" required>
+        <button type="submit">Analyze</button>
+    </form>
+
+    {% if segment_result %}
+    <div class="segment-result segment-{{ segment_result.segment_code }}">
+        <h3>Customer {{ segment_result.id }} is: {{ segment_result.segment }}</h3>
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+</div>
+
+<style>
+.segment-section {
+    margin: 20px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+.segment-result {
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 5px;
+}
+
+.segment-0 { background: #ffdddd; } /* Low-Value */
+.segment-1 { background: #fff3cd; } /* Mid-Value */
+.segment-2 { background: #d4edda; } /* High-Value */
+.segment-3 { background: #cce5ff; } /* Champion */
+
+.error {
+    color: #dc3545;
+    margin-top: 10px;
+}
+</style>
+
+
+
+</body>
+</html>
