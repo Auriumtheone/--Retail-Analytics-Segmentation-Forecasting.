@@ -65,10 +65,6 @@ print(" All data successfully inserted into MySQL!")
 
 
 
-
-
-
-
 # entire dataset is properly loaded into MySQL, with all constraints handled and foreign keys intact. 
 #  All data inserted without duplicates or integrity errors
 #  Products, transactions, and customers are fully mapped
